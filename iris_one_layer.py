@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from numpy import random
 import matplotlib.pyplot as plt
 
 
@@ -16,8 +17,8 @@ def one_hot(x, n):
 
 data = np.genfromtxt('iris.data', delimiter=",")
 np.random.shuffle(data)
-x_data = data[:,0:4].astype('f4')
-y_data = one_hot(data[:,4].astype(int), 3)
+x_data = data[:, 0:4].astype('f4')
+y_data = one_hot(data[:, 4].astype(int), 3)
 
 print y_data
 
@@ -29,15 +30,27 @@ print
 x = tf.placeholder("float", [None, 4])
 y_ = tf.placeholder("float", [None, 3])
 
-
+"""parte que nos dan
 W = tf.Variable(np.float32(np.random.rand(4, 3))*0.1)
 b = tf.Variable(np.float32(np.random.rand(3))*0.1)
 
 y = tf.nn.softmax((tf.sigmoid(tf.matmul(x, W) + b)))
+parte que nos dan"""
+
+neuronas = 8
+
+peso_capa_interna = tf.Variable(np.float32(random.rand(4, neuronas)) * 0.1)
+bias_capa_interna = tf.Variable(np.float32(random.rand(neuronas)) * 0.1)
+
+peso_capa_externa = tf.Variable(np.float32(random.rand(neuronas, 3)) * 0.1)
+bias_capa_externa = tf.Variable(np.float32(random.rand(3)) * 0.1)
+
+salida_capa_interna = tf.sigmoid(tf.matmul(x, peso_capa_interna) + bias_capa_interna)
+y = tf.nn.softmax(tf.matmul(salida_capa_interna, peso_capa_externa) + bias_capa_externa)
 
 
 cross_entropy = tf.reduce_sum(tf.square(y_ - y))
-#cross_entropy = -tf.reduce_sum(y_*tf.log(y))
+# cross_entropy = -tf.reduce_sum(y_*tf.log(y))
 
 train = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
 
@@ -54,8 +67,8 @@ batch_size = 20
 
 for step in xrange(1000):
     for jj in xrange(len(x_data) / batch_size):
-        batch_xs = x_data[jj*batch_size : jj*batch_size+batch_size]
-        batch_ys = y_data[jj*batch_size : jj*batch_size+batch_size]
+        batch_xs = x_data[jj * batch_size: jj * batch_size + batch_size]
+        batch_ys = y_data[jj * batch_size: jj * batch_size + batch_size]
 
         sess.run(train, feed_dict={x: batch_xs, y_: batch_ys})
         if step % 50 == 0:
@@ -64,9 +77,3 @@ for step in xrange(1000):
             for b, r in zip(batch_ys, result):
                 print b, "-->", r
             print "----------------------------------------------------------------------------------"
-            
-            
-            
-            
-            
-            

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from numpy import random
+
 import matplotlib.pyplot as plt
 
 
@@ -37,7 +38,8 @@ b = tf.Variable(np.float32(np.random.rand(3))*0.1)
 y = tf.nn.softmax((tf.sigmoid(tf.matmul(x, W) + b)))
 parte que nos dan"""
 
-neuronas = 8
+neuronas = 6
+
 
 peso_capa_interna = tf.Variable(np.float32(random.rand(4, neuronas)) * 0.1)
 bias_capa_interna = tf.Variable(np.float32(random.rand(neuronas)) * 0.1)
@@ -65,15 +67,38 @@ print "----------------------"
 
 batch_size = 20
 
+
+y_axis = []
+error = 0
+
 for step in xrange(1000):
     for jj in xrange(len(x_data) / batch_size):
-        batch_xs = x_data[jj * batch_size: jj * batch_size + batch_size]
-        batch_ys = y_data[jj * batch_size: jj * batch_size + batch_size]
+
+        batch_xs = x_data[jj*batch_size : jj*batch_size+batch_size]
+        batch_ys = y_data[jj*batch_size : jj*batch_size+batch_size]
 
         sess.run(train, feed_dict={x: batch_xs, y_: batch_ys})
+
+        if jj == 0:
+            error = sess.run(cross_entropy, feed_dict={x: batch_xs, y_: batch_ys})
+            y_axis.append(error)
+
         if step % 50 == 0:
-            print "Iteration #:", step, "Error: ", sess.run(cross_entropy, feed_dict={x: batch_xs, y_: batch_ys})
+            error = sess.run(cross_entropy, feed_dict={x: batch_xs, y_: batch_ys})
+            print "Iteration #:", step, "Error: ", error
             result = sess.run(y, feed_dict={x: batch_xs})
             for b, r in zip(batch_ys, result):
                 print b, "-->", r
             print "----------------------------------------------------------------------------------"
+
+
+
+
+x_axis = xrange(len(y_axis))
+
+plt.plot(x_axis, y_axis)
+plt.grid(True)
+plt.title('NN with ' + str(neuronas) + ' neurons in layer1')
+plt.xlabel('Iteration')
+plt.ylabel('Error')
+plt.show()
